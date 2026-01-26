@@ -114,6 +114,11 @@ public class QuizByAiService {
         if(topic == null || topic.isBlank())
             return false;
 
+        if (topic.matches(".*[bcdfghjklmnpqrstvwxyz]{5,}.*")) {
+            log.warn("Gibberish detected: {}", topic);
+            return true;
+        }
+
         return forbiddenTerms.stream().anyMatch(topic.toLowerCase()::contains);
     }
 }
