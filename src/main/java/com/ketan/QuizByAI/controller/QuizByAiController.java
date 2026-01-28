@@ -17,6 +17,11 @@ public class QuizByAiController {
     @Autowired
     private QuizByAiService service;
 
+    @GetMapping("/Health")
+    public ResponseEntity<Void> health() {
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/Generate")
     public ResponseEntity<List<Question>> generateQuiz(@RequestBody AiQuizRequestDTO dto) {
         return ResponseEntity.ok(service.generateQuestion(dto));
