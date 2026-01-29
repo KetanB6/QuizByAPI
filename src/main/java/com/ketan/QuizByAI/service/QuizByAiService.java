@@ -14,6 +14,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class QuizByAiService {
@@ -27,26 +28,46 @@ public class QuizByAiService {
                 .build();
     }
 
-    @CircuitBreaker(name="aiService", fallbackMethod="handleAiException")
     public List<Question> generateQuestion(AiQuizRequestDTO dto) {
 
         if(validateTopic(dto.getTopic())) {
             throw new BadRequestException("Inappropriate Quiz topic!");
         }
 
-        ParameterizedTypeReference<List<Question>> typeReference = new ParameterizedTypeReference<>() {};
         //Structures the response received from ai, if there is some mistake in response is request back to ai with error message
+        ParameterizedTypeReference<List<Question>> typeReference = new ParameterizedTypeReference<>() {};
         StructuredOutputValidationAdvisor validationAdvisor = StructuredOutputValidationAdvisor.builder()
                 .outputType(typeReference)
                 .maxRepeatAttempts(3) // It will try to fix the JSON 3 times before failing
                 .build();
 
-        List<Question> questions = this.chatClient.prompt()
-                .user(getPrompt(dto))
-                .advisors(new SimpleLoggerAdvisor(), validationAdvisor) //logs request and response automatically and validate response
-                .call()
-                .entity(new ParameterizedTypeReference<List<Question>>() {}); //In simple terms: It creates a "Super Type Token" that preserves the specific generic type (List<Question>) at runtime, preventing Java from losing that information due to Type Erasure.
+        List<Question> questions = null;
 
+        try {
+            questions = this.chatClient.prompt()
+                    .user(getPrompt(dto))
+                    .advisors(new SimpleLoggerAdvisor(), validationAdvisor) //logs request and response automatically and validate response
+                    .call()
+                    .entity(new ParameterizedTypeReference<List<Question>>() {}); //In simple terms: It creates a "Super Type Token" that preserves the specific generic type (List<Question>) at runtime, preventing Java from losing that information due to Type Erasure.
+        } catch (Exception e) {
+            String errorMsg = e.getMessage();
+
+            // 1. Handle Daily Quota
+            if (errorMsg.contains("quota") || errorMsg.contains("insufficient_quota") || errorMsg.contains("billing")) {
+                log.error("Daily/Billing Quota reached for Groq API!");
+                throw new AiLimitExceedException("Our AI Guruji has reached his daily limit. Please come back tomorrow!");
+            }
+
+            // 2. Handle TPM/RPM
+            if (errorMsg.contains("429") || errorMsg.contains("rate limit") || errorMsg.contains("tpm")) {
+                log.error("TPM/RPM Limit exceeded for topic: {}", dto.getTopic());
+                throw new AiLimitExceedException("Too many requests for Guruji to handle! Please wait for 60 seconds before trying again.");
+            }
+
+            // 3. other errors
+            log.error("Unexpected AI Error: {}", e.getMessage());
+            throw new AiLimitExceedException("Guruji is having some trouble. Try again in a few minutes.");
+        }
 
         if(questions.isEmpty()) {
             throw new BadRequestException("Quiz topic is invalid!");
@@ -55,14 +76,6 @@ public class QuizByAiService {
         return questions;
     }
 
-    //If our AI fails to replay due to limit exceed this method will be executed
-    public List<Question> handleAiException(AiQuizRequestDTO dto, Throwable t) {
-        if (t instanceof BadRequestException) {
-            throw (BadRequestException) t;
-        }
-        log.error(t.getMessage());
-        throw new AiLimitExceedException("Our AI professor is taking a short break. Try again shortly!");
-    }
 
     private String defaultSystemPrompt() {
         return  "You are an expert Professor. Generate unique quiz questions in strict JSON format. " +
@@ -76,20 +89,20 @@ public class QuizByAiService {
     }
 
     private String getPrompt(AiQuizRequestDTO dto) {
-        String difficulty = dto.getDifficulty().equalsIgnoreCase("Combined")
-                ? "a balanced mix of Easy, Moderate, and Difficult levels (roughly 1/3 each)"
-                : dto.getDifficulty() + " level";
+        int randomSeed = new Random().nextInt(10000);
 
         return String.format(
-                "Generate %d questions about '%s' in the %s language. " +
-                        "The difficulty must be %s. " +
-                        "Difficulty Guidelines: " +
-                        "- Easy: Basic facts and common knowledge. " +
-                        "- Moderate: Requires conceptual understanding. " +
-                        "- Difficult: Requires deep analysis or specific data. " +
-                        "CRITICAL: Every single field (question, opt1, opt2, opt3, opt4, correctOpt) " +
-                        "MUST be written in the %s language only.",
-                dto.getCount(), dto.getTopic(), dto.getLanguage(), difficulty, dto.getLanguage()
+                "Request Reference: #%d. " +
+                "Generate %d unique questions about '%s' in the %s language. " +
+                "The difficulty must be strictly %s level. " +
+                "VARIETY RULES: " +
+                "1. Do not repeat common or basic questions. " +
+                "2. Explore various sub-topics, niche facts, and diverse applications within the main topic. " +
+                "3. Ensure each question is conceptually distinct from the others. " +
+                "CRITICAL: Every single field (question, opt1, opt2, opt3, opt4, correctOpt) " +
+                "MUST be written in the %s language only.",
+                randomSeed, dto.getCount(), dto.getTopic(), dto.getLanguage(),
+                dto.getDifficulty(), dto.getLanguage()
         );
     }
 
