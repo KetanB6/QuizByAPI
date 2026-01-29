@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-//@CrossOrigin(origins = "https://myquizapp-psi.vercel.app")
-@CrossOrigin("*")
+@CrossOrigin(origins = "https://myquizapp-psi.vercel.app")
 public class QuizByAiController {
 
     @Autowired
