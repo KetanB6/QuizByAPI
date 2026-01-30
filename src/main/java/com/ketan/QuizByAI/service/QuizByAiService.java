@@ -4,7 +4,6 @@ import com.ketan.QuizByAI.exceptionHandler.AiLimitExceedException;
 import com.ketan.QuizByAI.exceptionHandler.BadRequestException;
 import com.ketan.QuizByAI.model.AiQuizRequestDTO;
 import com.ketan.QuizByAI.model.Question;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -79,7 +78,7 @@ public class QuizByAiService {
 
     private String defaultSystemPrompt() {
         return  "You are an expert Professor. Generate unique quiz questions in strict JSON format. " +
-                "Output ONLY a raw JSON array. No markdown. " +
+                "Output ONLY a raw JSON array. No markdown. Generate quiz questions in STRICT valid JSON format. " +
                 "CRITICAL: Single-line format. No literal newlines in strings. Use '\\n' for internal breaks. " +
                 "CRITICAL: Escape double quotes with backslash (\\\") or use single quotes. RFC8259 compliant. " +
                 "DIVERSITY RULE: Each question must be distinct. Options must be unique and plausible. DO NOT repeat the same distractors across different questions. " +
