@@ -3,18 +3,24 @@ package com.ketan.QuizByAI.controller;
 import com.ketan.QuizByAI.model.AiQuizRequestDTO;
 import com.ketan.QuizByAI.model.Question;
 import com.ketan.QuizByAI.service.QuizByAiService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.ketan.QuizByAI.service.QuizByTriviaDB;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "https://myquizapp-psi.vercel.app")
 public class QuizByAiController {
 
-    @Autowired
-    private QuizByAiService service;
+    private final QuizByTriviaDB quizByTriviaDB;
+    private final QuizByAiService quizByAiService;
+
+    public QuizByAiController (QuizByTriviaDB topicValidation, QuizByAiService quizByAiService) {
+        this.quizByTriviaDB = topicValidation;
+        this.quizByAiService = quizByAiService;
+    }
 
     @GetMapping("/Health")
     public ResponseEntity<Void> health() {
@@ -23,7 +29,17 @@ public class QuizByAiController {
 
     @PostMapping("/Generate")
     public ResponseEntity<List<Question>> generateQuiz(@RequestBody AiQuizRequestDTO dto) {
-        return ResponseEntity.ok(service.generateQuestion(dto));
+        return ResponseEntity.ok(quizByAiService.generateQuestion(dto));
+    }
+
+    @GetMapping("/Topics")
+    public ResponseEntity<Map<Integer, String>> topics() {
+        return ResponseEntity.ok(quizByTriviaDB.getTriviaTopics());
+    }
+
+    @GetMapping("/Live/{topicId}")
+    public ResponseEntity<List<Question>> triviaQuestions(@PathVariable int topicId) {
+        return ResponseEntity.ok(quizByTriviaDB.getQuestion(topicId));
     }
 
 }
