@@ -122,30 +122,39 @@ public class QuizByAiService {
                         Task: Generate exactly %d unique questions for '%s' in %s language.
                         
                         --- 1. DYNAMIC DIFFICULTY SCALING (%s) ---
-                        Calibrate the cognitive demand strictly to this level:
-                        - EASY: Focus on 'Identify' & 'Remember'. Direct facts, basic recognition, and clear examples.
-                        - MODERATE: Focus on 'Understand' & 'Apply'. Predict outcomes, interpret a process, or apply a rule to a simple scenario.
-                        - HARD: Focus on 'Analyze' & 'Evaluate'. Multi-layered systems, edge cases, comparing two conflicting variables, or identifying subtle errors.
+                        Calibrate the cognitive demand strictly:
+                        - EASY: Identify & Remember. Direct facts and clear examples.
+                        - MODERATE: Understand & Apply. Predict outcomes or interpret a process.
+                        - HARD: Analyze & Evaluate. Multi-layered systems, edge cases, and subtle errors.
                         
                         --- 2. STRUCTURAL VARIETY (ANTI-REPETITION) ---
-                        Do NOT repeat the same sentence structure. Rotate through these 4 frames:
-                        A. THE SCENARIO: Provide a context/story and ask for the implication.
-                        B. THE REVERSE: Give the result/output and ask for the specific cause/input.
-                        C. THE COMPARISON: Contrast two sub-elements of the topic and identify the differentiator.
-                        D. THE DIRECT: A sophisticated inquiry into a specific mechanism or rule.
+                        Rotate through these 4 frames:
+                        A. THE SCENARIO: Context/story based.
+                        B. THE REVERSE: Result provided, ask for the cause.
+                        C. THE COMPARISON: Contrast two sub-elements.
+                        D. THE DIRECT: Inquiry into a specific mechanism.
                         
-                        --- 3. CONCISE OPTION RULE (MANDATORY) ---
-                        - COMPLEX STEM: Put all necessary context and complexity in the 'question' field.
-                        - SHORT OPTIONS: Every 'opt' must be 1-4 words maximum. No long sentences.
-                        - PLAUSIBILITY: Distractors must be 'near-misses'—logically tempting but technically incorrect.
+                        --- 3. LANGUAGE & SCRIPT PRECISION (CRITICAL) ---
+                        - STRICT NATIVE SCRIPT: Use only %s Devnagari script.
+                        - NO TRANSLITERATION: Do NOT include English words in brackets (e.g., No 'Sanskutī (Culture)').
+                        - NO CODE-SWITCHING: Do not mix English/Sanskrit grammar into Marathi sentences.
+                        - PURE TERMINOLOGY: Use the standard academic terms of the target language.
                         
-                        --- 4. SUBJECT INTEGRITY ---
-                        - No math word problems for non-math topics (like Science/History).
-                        - Use technical terminology appropriate for the %s difficulty level.
+                        --- 4. CONCISE OPTION RULE ---
+                        - COMPLEX STEM: All context goes in the 'question' field.
+                        - SHORT OPTIONS: Max 1-7 words per option.
+                        - PLAUSIBILITY: Distractors must be 'near-misses'.
+                        
+                        --- 5. SUBJECT INTEGRITY ---
+                        - No math word problems for non-math topics.
                         
                         Output strictly raw JSON array. No preamble.""",
-                randomSeed, dto.getCount(), dto.getTopic(), dto.getLanguage(),
-                diff.toUpperCase(), diff.toUpperCase()
+                randomSeed,
+                dto.getCount(),
+                dto.getTopic(),
+                dto.getLanguage(),
+                diff.toUpperCase(),
+                dto.getLanguage()
         );
     }
 
