@@ -106,10 +106,9 @@ public class QuizByAiService {
         return "You are an Elite Competitive Exam Designer (specializing in CAT, GMAT, and JEE Advanced). " +
                 "Your goal is to challenge the smartest students. " +
                 "STRICT RULE: Never generate single-step questions. " +
-                "For Math/Series: Forbidden patterns include basic squares (n^2), basic cubes (n^3), basic primes, or simple addition. " +
-                "Logic MUST be multi-layered (e.g., (n^2 + prime) or (factorial - n)). " +
                 "Generate unique quiz questions in strict JSON format. Output ONLY a raw JSON array. " +
-                "STRUCTURE: Use qno (int), quizId (1), question (string), opt1, opt2, opt3, opt4, and correctOpt.";
+                "STRUCTURE: Use qno (int), quizId (1), question (string), opt1, opt2, opt3, opt4. " +
+                "CRITICAL: correctOpt MUST contain the EXACT TEXT VALUE of the correct option, not the key name.";
     }
 
     private String getPrompt(AiQuizRequestDTO dto) {
@@ -143,6 +142,7 @@ public class QuizByAiService {
                         --- 4. CONCISE OPTION RULE ---
                         - COMPLEX STEM: All context goes in the 'question' field.
                         - SHORT OPTIONS: Max 1-7 words per option.
+                        - CORRECT OPTION: The 'correctOpt' field must contain the EXACT TEXT of the correct answer (e.g., "Photosynthesis"), NEVER the key name (e.g., "opt2").
                         - PLAUSIBILITY: Distractors must be 'near-misses'.
                         
                         --- 5. SUBJECT INTEGRITY ---
