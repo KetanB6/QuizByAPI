@@ -45,7 +45,7 @@ public class QuizByAiService {
         try {
             questions = this.chatClient.prompt()
                     .user(getPrompt(dto))
-                    .advisors(new SimpleLoggerAdvisor(), validationAdvisor) //logs request and response automatically and validate response
+                    .advisors(validationAdvisor) //logs request and response automatically and validate response
                     .call()
                     .entity(new ParameterizedTypeReference<List<Question>>() {}); //In simple terms: It creates a "Super Type Token" that preserves the specific generic type (List<Question>) at runtime, preventing Java from losing that information due to Type Erasure.
 
@@ -103,31 +103,49 @@ public class QuizByAiService {
     }
 
     private String defaultSystemPrompt() {
-        return  "You are an expert Professor. Generate unique quiz questions in strict JSON format. " +
-                "Output ONLY a raw JSON array. No markdown. " +
-                "CRITICAL: Single-line format. No literal newlines in strings. Use '\\n' for internal breaks. " +
-                "CRITICAL: Escape double quotes with backslash (\\\") or use single quotes. RFC8259 compliant. " +
-                "DIVERSITY RULE: Each question must be distinct. Options must be unique and plausible. DO NOT repeat the same distractors across different questions. " +
-                "STOP! If the input topic is gibberish, random letters (like 'asdf'), or nonsensical, " +
-                "TOPIC CHECK: If the topic is nonsensical, silly, violent, or illegal, return exactly: []. " +
-                "STRUCTURE: Use qno (int), quizId (1), question (string), opt1, opt2, opt3, opt4, and correctOpt (exact string match). No null values.";
+        return "You are an Elite Competitive Exam Designer (specializing in CAT, GMAT, and JEE Advanced). " +
+                "Your goal is to challenge the smartest students. " +
+                "STRICT RULE: Never generate single-step questions. " +
+                "For Math/Series: Forbidden patterns include basic squares (n^2), basic cubes (n^3), basic primes, or simple addition. " +
+                "Logic MUST be multi-layered (e.g., (n^2 + prime) or (factorial - n)). " +
+                "Generate unique quiz questions in strict JSON format. Output ONLY a raw JSON array. " +
+                "STRUCTURE: Use qno (int), quizId (1), question (string), opt1, opt2, opt3, opt4, and correctOpt.";
     }
 
     private String getPrompt(AiQuizRequestDTO dto) {
         int randomSeed = new Random().nextInt(10000);
+        String diff = dto.getDifficulty().toLowerCase();
 
         return String.format(
-                "Request Reference: #%d. " +
-                "Generate %d unique questions about '%s' in the %s language. " +
-                "The difficulty must be strictly %s level. " +
-                "VARIETY RULES: " +
-                "1. Do not repeat common or basic questions. " +
-                "2. Explore various sub-topics, niche facts, and diverse applications within the main topic. " +
-                "3. Ensure each question is conceptually distinct from the others. " +
-                "CRITICAL: Every single field (question, opt1, opt2, opt3, opt4, correctOpt) " +
-                "MUST be written in the %s language only.",
+                """
+                        Request ID: #%d. Role: Master Instructional Designer & Assessment Expert.
+                        Task: Generate exactly %d unique questions for '%s' in %s language.
+                        
+                        --- 1. DYNAMIC DIFFICULTY SCALING (%s) ---
+                        Calibrate the cognitive demand strictly to this level:
+                        - EASY: Focus on 'Identify' & 'Remember'. Direct facts, basic recognition, and clear examples.
+                        - MODERATE: Focus on 'Understand' & 'Apply'. Predict outcomes, interpret a process, or apply a rule to a simple scenario.
+                        - HARD: Focus on 'Analyze' & 'Evaluate'. Multi-layered systems, edge cases, comparing two conflicting variables, or identifying subtle errors.
+                        
+                        --- 2. STRUCTURAL VARIETY (ANTI-REPETITION) ---
+                        Do NOT repeat the same sentence structure. Rotate through these 4 frames:
+                        A. THE SCENARIO: Provide a context/story and ask for the implication.
+                        B. THE REVERSE: Give the result/output and ask for the specific cause/input.
+                        C. THE COMPARISON: Contrast two sub-elements of the topic and identify the differentiator.
+                        D. THE DIRECT: A sophisticated inquiry into a specific mechanism or rule.
+                        
+                        --- 3. CONCISE OPTION RULE (MANDATORY) ---
+                        - COMPLEX STEM: Put all necessary context and complexity in the 'question' field.
+                        - SHORT OPTIONS: Every 'opt' must be 1-4 words maximum. No long sentences.
+                        - PLAUSIBILITY: Distractors must be 'near-misses'—logically tempting but technically incorrect.
+                        
+                        --- 4. SUBJECT INTEGRITY ---
+                        - No math word problems for non-math topics (like Science/History).
+                        - Use technical terminology appropriate for the %s difficulty level.
+                        
+                        Output strictly raw JSON array. No preamble.""",
                 randomSeed, dto.getCount(), dto.getTopic(), dto.getLanguage(),
-                dto.getDifficulty(), dto.getLanguage()
+                diff.toUpperCase(), diff.toUpperCase()
         );
     }
 

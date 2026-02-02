@@ -8,6 +8,7 @@ public class AiQuizRequestDTO {
     private int count;
     private String language;
     private String difficulty;
+    private String note;
 
     public String getTopic() {
         return topic;
@@ -39,5 +40,13 @@ public class AiQuizRequestDTO {
 
     public void setDifficulty(String difficulty) {
         this.difficulty = difficulty;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }
