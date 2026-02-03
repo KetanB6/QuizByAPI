@@ -167,5 +167,4 @@ public class QuizByAiService {
                 diff.toUpperCase()  // 10. %s difficulty level
         );
     }
-
 }
