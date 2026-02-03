@@ -118,43 +118,53 @@ public class QuizByAiService {
         return String.format(
                 """
                         Request ID: #%d. Role: Master Instructional Designer & Assessment Expert.
-                        Task: Generate exactly %d unique questions for '%s' in %s language.
+                        Task: Generate exactly %d unique questions for the specific topic '%s' in %s language.
+                        
+                        --- 0. DOMAIN ADAPTATION & TOPIC ANCHOR (CRITICAL) ---
+                        - Analyze the topic '%s' carefully. 
+                        - STRICT BOUNDARY: Every question must exclusively test '%s'. Do NOT drift into related but different sub-topics (e.g., if the topic is 'Articles', do not include 'Relative Pronouns' like who/which).
+                        - PEDAGOGICAL MATCH: If the topic is grammar/language, use 'Fill-in-the-blanks' or 'Sentence Completion'. If technical, use code snippets or logic scenarios.
                         
                         --- 1. DYNAMIC DIFFICULTY SCALING (%s) ---
-                        Calibrate the cognitive demand strictly:
-                        - EASY: Identify & Remember. Direct facts and clear examples.
-                        - MODERATE: Understand & Apply. Predict outcomes or interpret a process.
-                        - HARD: Analyze & Evaluate. Multi-layered systems, edge cases, and subtle errors.
+                        Calibrate the cognitive demand strictly to this level:
+                        - EASY: Focus on 'Identify' & 'Remember'. Direct facts and clear examples.
+                        - MODERATE: Focus on 'Understand' & 'Apply'. Predict outcomes or apply a rule to a standard scenario.
+                        - HARD: Focus on 'Analyze' & 'Evaluate'. Multi-layered systems, edge cases, exceptions to rules, or identifying subtle errors.
                         
                         --- 2. STRUCTURAL VARIETY (ANTI-REPETITION) ---
-                        Rotate through these 4 frames:
-                        A. THE SCENARIO: Context/story based.
-                        B. THE REVERSE: Result provided, ask for the cause.
-                        C. THE COMPARISON: Contrast two sub-elements.
-                        D. THE DIRECT: Inquiry into a specific mechanism.
+                        Do NOT repeat the same sentence structure. Rotate through these 4 frames:
+                        A. THE SCENARIO: Provide a context/story and ask for the implication.
+                        B. THE REVERSE: Give the result/output and ask for the specific cause/input.
+                        C. THE COMPARISON: Contrast two sub-elements of the topic and identify the differentiator.
+                        D. THE DIRECT: A sophisticated inquiry into a specific mechanism or rule.
                         
-                        --- 3. LANGUAGE & SCRIPT PRECISION (CRITICAL) ---
+                        --- 3. LANGUAGE & SCRIPT PRECISION (STRICT GUARDRAILS) ---
                         - STRICT NATIVE SCRIPT: Use only %s Devnagari script.
                         - NO TRANSLITERATION: Do NOT include English words in brackets (e.g., No 'Sanskutī (Culture)').
-                        - NO CODE-SWITCHING: Do not mix English/Sanskrit grammar into Marathi sentences.
+                        - NO CODE-SWITCHING: Do not mix English grammar or phonetics into %s sentences.
                         - PURE TERMINOLOGY: Use the standard academic terms of the target language.
                         
-                        --- 4. CONCISE OPTION RULE ---
-                        - COMPLEX STEM: All context goes in the 'question' field.
-                        - SHORT OPTIONS: Max 1-7 words per option.
-                        - CORRECT OPTION: The 'correctOpt' field must contain the EXACT TEXT of the correct answer (e.g., "Photosynthesis"), NEVER the key name (e.g., "opt2").
-                        - PLAUSIBILITY: Distractors must be 'near-misses'.
+                        --- 4. CONCISE OPTION RULE (MANDATORY) ---
+                        - COMPLEX STEM: Put all necessary context and complexity in the 'question' field.
+                        - SHORT OPTIONS: Every 'opt' must be 1-7 words maximum.
+                        - CORRECT OPTION: The 'correctOpt' field must contain the EXACT TEXT of the correct answer, NEVER the key name (e.g., never return 'opt2').
+                        - PLAUSIBILITY: Distractors must be 'near-misses'—logically tempting but technically incorrect.
                         
                         --- 5. SUBJECT INTEGRITY ---
                         - No math word problems for non-math topics.
+                        - Use technical terminology appropriate for the %s difficulty level.
                         
                         Output strictly raw JSON array. No preamble.""",
-                randomSeed,
-                dto.getCount(),
-                dto.getTopic(),
-                dto.getLanguage(),
-                diff.toUpperCase(),
-                dto.getLanguage()
+                randomSeed,         // 1. #%d
+                dto.getCount(),     // 2. %d
+                dto.getTopic(),     // 3. topic '%s'
+                dto.getLanguage(),  // 4. %s language
+                dto.getTopic(),     // 5. Analyze '%s'
+                dto.getTopic(),     // 6. test '%s'
+                diff.toUpperCase(), // 7. scaling (%s)
+                dto.getLanguage(),  // 8. %s Devnagari script
+                dto.getLanguage(),  // 9. %s sentences
+                diff.toUpperCase()  // 10. %s difficulty level
         );
     }
 
