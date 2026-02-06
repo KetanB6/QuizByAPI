@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-//@CrossOrigin(origins = "https://myquizapp-psi.vercel.app")
-@CrossOrigin("*")
+@CrossOrigin(origins = "https://myquizapp-psi.vercel.app")
 public class QuizByAiController {
 
     private final QuizByTriviaDB quizByTriviaDB;
