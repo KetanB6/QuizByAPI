@@ -12,6 +12,7 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "https://quizkrida.vercel.app")
+@RequestMapping("/api/v1")
 public class QuizByAiController {
 
     private final QuizByTriviaDB quizByTriviaDB;
@@ -20,6 +21,11 @@ public class QuizByAiController {
     public QuizByAiController (QuizByTriviaDB topicValidation, QuizByAiService quizByAiService) {
         this.quizByTriviaDB = topicValidation;
         this.quizByAiService = quizByAiService;
+    }
+
+    @GetMapping
+    public String apiInfo() {
+        return "You are on API URL. Please visit official site: https://myquizapp-psi.vercel.app/";
     }
 
     @GetMapping("/Health")
