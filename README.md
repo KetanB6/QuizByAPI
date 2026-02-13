@@ -1,4 +1,4 @@
-# Quiz by API (QuizByAiService)
+# Quiz by API 
 
 **Quiz by API** is a Spring Boot microservice that dynamically generates quizzes using AI and real-time trivia data. It powers the **AI Quiz** and **Global Topics** features of the QuizKrida platform.
 
