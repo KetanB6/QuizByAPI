@@ -5,6 +5,7 @@
 This service is focused purely on quiz generation. It does **not** store users, results, or sessions — it returns ready-to-play questions on demand.
 
 > Integrated frontend: https://quizkrida.vercel.app/
+
 > Base API URL: `/api/v1`
 
 ---
