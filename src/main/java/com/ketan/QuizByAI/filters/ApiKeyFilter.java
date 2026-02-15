@@ -17,6 +17,12 @@ public class ApiKeyFilter extends OncePerRequestFilter {
     private String validApiKey;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.equalsIgnoreCase("/api/v1/Health");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
